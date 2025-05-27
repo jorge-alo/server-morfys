@@ -16,8 +16,8 @@ app.use(cookieParser());
 // Configuración CORS explícita para imágenes
 
 const allowedOrigins = [
-  'http://localhost:5173',
-   'https://client-morfys-git-main-jorges-projects-8a39959d.vercel.app', // remplazalo por tu dominio real en Vercel
+   'https://client-morfys.vercel.app', // ✅ Tu frontend en producción
+  'http://localhost:5173'             // ✅ Para desarrollo local si usás Vite
 ];
 app.use(cors({
     origin: allowedOrigins,

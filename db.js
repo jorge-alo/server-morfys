@@ -9,8 +9,13 @@ export const pool = mysql.createPool({
     database: process.env.DB_DATABASE,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
-})
+    queueLimit: 0,
+    ssl: {                             // 👈 Obligatorio en Railway
+    rejectUnauthorized: false
+  },
+  connectTimeout: 10000              // 👈 Aumenta timeout a 10s
+});
+
 
 const verifyconnection = async () => {
     let connection;

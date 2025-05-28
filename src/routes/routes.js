@@ -35,6 +35,14 @@ router.post('/register', fileUpload, registerQuerysData);
 router.post('/category', loadQuerysCategory);
 router.post('/forgot-password', forgotPasswordQuerysData); // Agrega esta línea
 router.post('/reset-password', resetPasswordQuerysData);
+router.post('/logout', (req, res) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'None'
+  });
+  return res.json({ message: 'Logout exitoso' });
+});
 router.get('/', authentication, loadQuerysLocales);
 router.get('/locales/:name', authentication, getquerysImages);
 router.get('/verify-token', authentication, (req, res) => {

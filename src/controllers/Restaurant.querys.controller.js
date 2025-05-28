@@ -164,10 +164,14 @@ export const loginQuerysData = async (req, res) => {
             })
         }
         const token = jwt.sign({ user: user.user_name, id: user.id, local: user.local, auth: user.auth }, process.env.JWT_SECRETPASSWORD, { expiresIn: process.env.JWT_EXPIRES })
-        const optionCookies = {
-            path: '/',
-            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000)
-        }
+       const optionCookies = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 24 * 60 * 60 * 1000,
+  path: '/',
+  domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined
+};
 
         res.cookie('jwt', token, optionCookies);
         return res.json({

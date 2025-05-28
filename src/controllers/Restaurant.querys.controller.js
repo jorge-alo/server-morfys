@@ -169,8 +169,7 @@ export const loginQuerysData = async (req, res) => {
   secure: process.env.NODE_ENV === 'production',
   sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
   maxAge: 24 * 60 * 60 * 1000,
-  path: '/',
-  domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined
+  path: '/'
 };
 
         res.cookie('jwt', token, optionCookies);

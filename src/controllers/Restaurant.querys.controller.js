@@ -52,7 +52,7 @@ export const forgotPasswordQuerysData = async (req, res) => {
 
 export const resetPasswordQuerysData = async (req, res) => {
     const { token, newPassword } = req.body;
-console.log(req.body);
+    console.log(req.body);
     try {
         // 1. Verificar token
         const decoded = jwt.verify(token, process.env.JWT_SECRETPASSWORD);
@@ -76,9 +76,6 @@ console.log(req.body);
 };
 export const registerQuerysData = async (req, res) => {
 
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirName = path.dirname(decodeURI(__fileName));
-
 
     if (!req.file) {
         return res.status(400).json({
@@ -88,7 +85,6 @@ export const registerQuerysData = async (req, res) => {
     }
 
     console.log(req.file);
-    const nameFile = req.file.originalname;
     const type = req.file.mimetype;
     console.log(req.body);
     const { name, email, password, local, lat, lng, cel } = req.body;
@@ -99,24 +95,22 @@ export const registerQuerysData = async (req, res) => {
             message: "Faltan cargar datos"
         })
     }
-    const filePath = path.join(__dirName, '../../images', req.file.filename);
 
     if (!type.startsWith('image/')) {
         return res.status(400).json({ message: "Solo se permiten imágenes" });
     }
 
-    if (!fs.existsSync(filePath)) {
-        return res.status(400).json({
-            status: "Error",
-            message: "No se encontro la imagen en la carpeta"
-        })
-    }
+    // Obtenemos la URL desde Cloudinary (gracias a multer-storage-cloudinary)
+    const imageUrl = req.file.secure_url; // esta es la URL pública
 
     const salt = await bcryptjs.genSalt(5);
     const hashPassword = await bcryptjs.hash(password, salt);
 
     try {
-        const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, logo) values (?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, req.file.originalname])
+        if (!req.file.secure_url) {
+                throw new Error("No se recibió URL de Cloudinary");
+            }
+        const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, logo) values (?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, imageUrl])
         return res.json({
             status: "ok",
             message: "usuario registrado con exito"
@@ -164,13 +158,13 @@ export const loginQuerysData = async (req, res) => {
             })
         }
         const token = jwt.sign({ user: user.user_name, id: user.id, local: user.local, auth: user.auth }, process.env.JWT_SECRETPASSWORD, { expiresIn: process.env.JWT_EXPIRES })
-       const optionCookies = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-  maxAge: 24 * 60 * 60 * 1000,
-  path: '/'
-};
+        const optionCookies = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            maxAge: 24 * 60 * 60 * 1000,
+            path: '/'
+        };
 
         res.cookie('jwt', token, optionCookies);
         return res.json({
@@ -239,8 +233,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     console.log(req.body);
     console.log("datos del usuario:", req.user);
 
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirName = path.dirname(decodeURI(__fileName));
+
     const { envio, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada,
         horarioManianaSalida, diaTardeEntrada, diaTardeSalida,
         horarioTardeEntrada, horarioTardeSalida, diaDifManianaEntrada,
@@ -271,30 +264,21 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
 
     console.log(values);
     console.log(setClause);
-    let result;
-    let nameFile = req.file?.originalname || null;
 
-    if (req.file && req.body) {
-        nameFile = req.file.originalname;
+
+    if (req.file && validFields.length > 0) {
         const type = req.file.mimetype;
-        const filePath = path.join(__dirName, '../../images', req.file.filename);
-
         if (!type.startsWith('image/')) {
             return res.status(400).json({ message: "Solo se permiten imágenes" });
         }
-
-        if (!fs.existsSync(filePath)) {
-            return res.status(400).json({
-                status: "Error",
-                message: "No se encontro la imagen en la carpeta"
-            })
-        }
-
         try {
+            if (!req.file.secure_url) {
+                throw new Error("No se recibió URL de Cloudinary");
+            }
             // insert con imagen
             result = await pool.query(
                 `UPDATE restaurant SET ${setClause}, logo = ? WHERE id = ?`,
-                [...values, nameFile, req.user.id]
+                [...values, req.file.secure_url, req.user.id]
             );
 
             return res.json({
@@ -307,12 +291,14 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
                 message: `error interno del servidor: ${error}`
             })
         }
-    } else if (req.file && !req.body) {
+    } else if (req.file && validFields.length == 0) {
         try {
-            // insert sin imagen
+            if (!req.file.secure_url) {
+                throw new Error("No se recibió URL de Cloudinary");
+            }
             result = await pool.query(
                 'UPDATE restaurant SET logo = ? WHERE id = ? ',
-                [nameFile, req.user.id]
+                [req.file.secure_url, req.user.id]
             );
 
             return res.json({
@@ -325,7 +311,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
                 message: `error interno del servidor: ${error}`
             })
         }
-    } else if (!req.file && req.body) {
+    } else if (!req.file && validFields.length > 0) {
         try {
             // insert sin imagen
             result = await pool.query(
@@ -347,31 +333,25 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
 }
 
 export const uploadQuerysBanner = async (req, res) => {
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirName = path.dirname(decodeURI(__fileName));
+
     const { user_id } = req.body;
     console.log("valor de reqFile", req.file);
     console.log("valor de userid:", user_id);
     try {
-        const nameFile = req.file.originalname;
+        if (!req.file.secure_url) {
+            throw new Error("Cloudinary no devolvió una URL válida");
+        }
         const type = req.file.mimetype;
-        const filePath = path.join(__dirName, '../../images', req.file.filename);
+
 
         if (!type.startsWith('image/')) {
             return res.status(400).json({ message: "Solo se permiten imágenes" });
         }
 
-        if (!fs.existsSync(filePath)) {
-            return res.status(400).json({
-                status: "Error",
-                message: "No se encontro la imagen en la carpeta"
-            })
-        }
-
         // UPDATE con imagen
         const result = await pool.query(
             `UPDATE restaurant SET img_vaner = ? WHERE id = ?`,
-            [nameFile, user_id]
+            [req.file.secure_url, user_id]
         );
 
         return res.json({

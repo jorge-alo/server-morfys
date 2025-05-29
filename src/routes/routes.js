@@ -1,30 +1,13 @@
 import { Router } from "express";
 import { forgotPasswordQuerysData, getquerysImages,  loadQuerysLocales, loginQuerysData, logoEnvioHorarioQuerysData, registerQuerysData, resetPasswordQuerysData, uploadQuerysBanner } from "../controllers/Restaurant.querys.controller.js";
 import multer from 'multer';
-import {fileURLToPath} from 'url'
-import path from 'path';
-import fs from 'fs';
 import { authentication } from "../middleware/auth.js";
 import { cargarQuerysData, destroyQuerysData, uploadQuerysData, loadQuerysCategory } from "../controllers/Comidas.querys.controller.js";
 export const router = Router();
 
-const __fileName = fileURLToPath(import.meta.url);
-const __dirName =  path.dirname(decodeURI(__fileName));
+import { storage } from '../config/cloudinary.js'; // <-- Importamos Cloudinary
 
-const uploadPath = path.join(__dirName, '../../images');
-if(!fs.existsSync(uploadPath)){
-    fs.mkdirSync(uploadPath, { recursive: true});
-}
-const disckStorage = multer.diskStorage({
-    destination: uploadPath,
-    filename: (req, file, cb) => {
-        cb(null,file.originalname);
-    }
-})
-
-const fileUpload = multer({
-    storage: disckStorage
-}).single("image")
+const fileUpload = multer({ storage }).single('image'); // ya no usamos diskStorage
 
 router.put('/update',fileUpload, uploadQuerysData);
 router.put('/updateBanner',fileUpload, uploadQuerysBanner);

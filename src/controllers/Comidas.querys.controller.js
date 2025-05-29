@@ -8,35 +8,25 @@ import jwt from 'jsonwebtoken';
 export const uploadQuerysData = async (req, res) => {
     console.log(req.file)
     console.log(req.body);
-
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirName = path.dirname(decodeURI(__fileName));
     const { name, description, price, categoria, user_id, comida_id, guarnicion } = req.body;
 
     const guarnicionValue = guarnicion === "true" ? 1 : 0;
     try {
         let result;
-        if (req.file) {
-            const nameFile = req.file.originalname;
+        if (req.file) { 
+             if (!req.file.path) {
+            throw new Error("Cloudinary no devolvió una URL válida");
+        }
+        //
             const type = req.file.mimetype;
-            const filePath = path.join(__dirName, '../../images', req.file.filename);
-
             if (!type.startsWith('image/')) {
                 return res.status(400).json({ message: "Solo se permiten imágenes" });
             }
 
-            if (!fs.existsSync(filePath)) {
-                return res.status(400).json({
-                    status: "Error",
-                    message: "No se encontro la imagen en la carpeta"
-                })
-            }
-            const data = await fs.promises.readFile(filePath);
-
             // UPDATE con imagen
             result = await pool.query(
                 `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, guarnicion = ? WHERE id = ? AND user_id = ?`,
-                [name, description, nameFile, price, categoria, guarnicionValue, comida_id, user_id]
+                [name, description, req.file.secure_url, price, categoria, guarnicionValue, comida_id, user_id]
             );
         } else {
             // UPDATE sin imagen
@@ -63,9 +53,6 @@ export const cargarQuerysData = async (req, res) => {
     console.log(req.file)
     console.log(req.body);
     console.log("datos del usuario:", req.user);
-
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirName = path.dirname(decodeURI(__fileName));
     const { name, description, price, categoria, guarnicion } = req.body;
     const guarnicionValue = guarnicion === "true" ? 1 : 0;
 
@@ -79,26 +66,16 @@ export const cargarQuerysData = async (req, res) => {
     let result;
     
     if(req.file){
-        const nameFile = req.file.originalname;
         const type = req.file.mimetype;
-        const filePath = path.join(__dirName, '../../images', req.file.filename);
-    
         if (!type.startsWith('image/')) {
             return res.status(400).json({ message: "Solo se permiten imágenes" });
-        }
-    
-        if (!fs.existsSync(filePath)) {
-            return res.status(400).json({
-                status: "Error",
-                message: "No se encontro la imagen en la carpeta"
-            })
         }
 
         try {
             // insert con imagen
             result = await pool.query(
                 'INSERT INTO comidas (user_id , name, description, image, price, categoria, guarnicion) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [req.user.id, name, description, nameFile, price, categoria, guarnicionValue]
+                [req.user.id, name, description, req.file.secure_url, price, categoria, guarnicionValue]
             );
     
             return res.json({

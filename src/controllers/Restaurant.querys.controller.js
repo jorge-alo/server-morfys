@@ -271,7 +271,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
                 throw new Error("No se recibió URL de Cloudinary");
             }
             // insert con imagen
-            result = await pool.query(
+           const result = await pool.query(
                 `UPDATE restaurant SET ${setClause}, logo = ? WHERE id = ?`,
                 [...values, req.file.path, req.user.id]
             );
@@ -288,10 +288,11 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
         }
     } else if (req.file && validFields.length == 0) {
         try {
+            console.log("valor de req.file dentro del if", req.file);
             if (!req.file.path) {
                 throw new Error("No se recibió URL de Cloudinary");
             }
-            result = await pool.query(
+           const result = await pool.query(
                 'UPDATE restaurant SET logo = ? WHERE id = ? ',
                 [req.file.path, req.user.id]
             );
@@ -309,7 +310,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     } else if (!req.file && validFields.length > 0) {
         try {
             // insert sin imagen
-            result = await pool.query(
+           const result = await pool.query(
                 `UPDATE restaurant SET ${setClause} WHERE id = ?`,
                 [...values, req.user.id]
             );

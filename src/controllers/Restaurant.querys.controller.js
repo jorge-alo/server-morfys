@@ -251,12 +251,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     // Filtramos campos con valor válido (que no estén vacíos)
     const validFields = Object.entries(field).filter(([key, value]) => value !== "" && value !== undefined && value !== null);
 
-    if (validFields.length === 0) {
-        return res.status(400).json({
-            status: "error",
-            message: "No hay datos válidos para actualizar"
-        });
-    }
+  
 
     // Creamos los fragmentos SET dinámicos y los valores
     const setClause = validFields.map(([key]) => `${key} = ?`).join(', ');
@@ -272,7 +267,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
             return res.status(400).json({ message: "Solo se permiten imágenes" });
         }
         try {
-            if (!req.file.secure_url) {
+            if (!req.file.path) {
                 throw new Error("No se recibió URL de Cloudinary");
             }
             // insert con imagen

@@ -334,7 +334,7 @@ export const uploadQuerysBanner = async (req, res) => {
     console.log("valor de reqFile", req.file);
     console.log("valor de userid:", user_id);
     try {
-        if (!req.file.secure_url) {
+        if (!req.file.path) {
             throw new Error("Cloudinary no devolvió una URL válida");
         }
         const type = req.file.mimetype;

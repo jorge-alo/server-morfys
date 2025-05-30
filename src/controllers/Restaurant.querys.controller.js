@@ -101,13 +101,13 @@ export const registerQuerysData = async (req, res) => {
     }
 
     // Obtenemos la URL desde Cloudinary (gracias a multer-storage-cloudinary)
-    const imageUrl = req.file.secure_url; // esta es la URL pública
+    const imageUrl = req.file.path; // esta es la URL pública
 
     const salt = await bcryptjs.genSalt(5);
     const hashPassword = await bcryptjs.hash(password, salt);
 
     try {
-        if (!req.file.secure_url) {
+        if (!req.file.path) {
                 throw new Error("No se recibió URL de Cloudinary");
             }
         const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, logo) values (?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, imageUrl])
@@ -278,7 +278,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
             // insert con imagen
             result = await pool.query(
                 `UPDATE restaurant SET ${setClause}, logo = ? WHERE id = ?`,
-                [...values, req.file.secure_url, req.user.id]
+                [...values, req.file.path, req.user.id]
             );
 
             return res.json({
@@ -293,12 +293,12 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
         }
     } else if (req.file && validFields.length == 0) {
         try {
-            if (!req.file.secure_url) {
+            if (!req.file.path) {
                 throw new Error("No se recibió URL de Cloudinary");
             }
             result = await pool.query(
                 'UPDATE restaurant SET logo = ? WHERE id = ? ',
-                [req.file.secure_url, req.user.id]
+                [req.file.path, req.user.id]
             );
 
             return res.json({
@@ -351,7 +351,7 @@ export const uploadQuerysBanner = async (req, res) => {
         // UPDATE con imagen
         const result = await pool.query(
             `UPDATE restaurant SET img_vaner = ? WHERE id = ?`,
-            [req.file.secure_url, user_id]
+            [req.file.path, user_id]
         );
 
         return res.json({

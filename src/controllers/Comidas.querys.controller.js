@@ -26,7 +26,7 @@ export const uploadQuerysData = async (req, res) => {
             // UPDATE con imagen
             result = await pool.query(
                 `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, guarnicion = ? WHERE id = ? AND user_id = ?`,
-                [name, description, req.file.secure_url, price, categoria, guarnicionValue, comida_id, user_id]
+                [name, description, req.file.path, price, categoria, guarnicionValue, comida_id, user_id]
             );
         } else {
             // UPDATE sin imagen
@@ -75,7 +75,7 @@ export const cargarQuerysData = async (req, res) => {
             // insert con imagen
             result = await pool.query(
                 'INSERT INTO comidas (user_id , name, description, image, price, categoria, guarnicion) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [req.user.id, name, description, req.file.secure_url, price, categoria, guarnicionValue]
+                [req.user.id, name, description, req.file.path, price, categoria, guarnicionValue]
             );
     
             return res.json({

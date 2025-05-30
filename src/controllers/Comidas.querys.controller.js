@@ -50,7 +50,7 @@ export const uploadQuerysData = async (req, res) => {
 }
 
 export const cargarQuerysData = async (req, res) => {
-    console.log(req.file)
+    console.log("Archivo recibido:", req.file)
     console.log(req.body);
     console.log("datos del usuario:", req.user);
     const { name, description, price, categoria, guarnicion } = req.body;

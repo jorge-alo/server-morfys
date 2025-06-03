@@ -234,7 +234,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     console.log("datos del usuario:", req.user);
 
 
-    const { envio, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada,
+    const { envio, cel, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada,
         horarioManianaSalida, diaTardeEntrada, diaTardeSalida,
         horarioTardeEntrada, horarioTardeSalida, diaDifManianaEntrada,
         horarioDifManianaEntrada, horarioDifManianaSalida, diaDifTardeEntrada,
@@ -242,7 +242,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
 
 
     const field = {
-        envio, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada,
+        envio, cel, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada,
         horarioManianaSalida, diaTardeEntrada, diaTardeSalida,
         horarioTardeEntrada, horarioTardeSalida, diaDifManianaEntrada,
         horarioDifManianaEntrada, horarioDifManianaSalida, diaDifTardeEntrada,

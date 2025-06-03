@@ -139,7 +139,7 @@ export const loginQuerysData = async (req, res) => {
     }
 
     try {
-        const [row] = await pool.query("SELECT * FROM restaurant WHERE  user_name = ? OR  email = ?", [name, email])
+        const [row] = await pool.query("SELECT * FROM restaurant WHERE  user_name = ? AND  email = ?", [name, email])
         if (row.length === 0) {
             return res.status(400).json({
                 status: "error",

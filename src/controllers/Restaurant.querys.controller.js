@@ -154,7 +154,7 @@ export const registerActualizarQuerysData = async (req, res) => {
         }
 
         const field = {
-            name, email, local, lat, lng, cel
+            name, email, lat, lng, cel
         };
         if (hashPassword) field.password = hashPassword;
 

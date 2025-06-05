@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { forgotPasswordQuerysData, getquerysImages,  loadQuerysLocales, loginQuerysData, logoEnvioHorarioQuerysData, registerQuerysData, resetPasswordQuerysData, uploadQuerysBanner } from "../controllers/Restaurant.querys.controller.js";
+import { forgotPasswordQuerysData, getquerysImages,  loadQuerysLocales, loginQuerysData, logoEnvioHorarioQuerysData, registerActualizarQuerysData, registerQuerysData, resetPasswordQuerysData, uploadQuerysBanner } from "../controllers/Restaurant.querys.controller.js";
 import multer from 'multer';
 import { authentication } from "../middleware/auth.js";
 import { cargarQuerysData, destroyQuerysData, uploadQuerysData, loadQuerysCategory } from "../controllers/Comidas.querys.controller.js";
@@ -13,6 +13,7 @@ router.put('/update',fileUpload, uploadQuerysData);
 router.put('/updateBanner',fileUpload, uploadQuerysBanner);
 router.post('/cargar',fileUpload, authentication, cargarQuerysData);
 router.put('/horario',fileUpload, authentication, logoEnvioHorarioQuerysData);
+router.put('/actualizar',fileUpload, authentication, registerActualizarQuerysData);
 router.post('/login', loginQuerysData);
 router.post('/register', fileUpload, registerQuerysData);
 router.post('/category', loadQuerysCategory);

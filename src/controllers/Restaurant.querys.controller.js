@@ -108,8 +108,8 @@ export const registerQuerysData = async (req, res) => {
 
     try {
         if (!req.file.path) {
-                throw new Error("No se recibió URL de Cloudinary");
-            }
+            throw new Error("No se recibió URL de Cloudinary");
+        }
         const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, logo) values (?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, imageUrl])
         return res.json({
             status: "ok",
@@ -127,6 +127,72 @@ export const registerQuerysData = async (req, res) => {
 
 }
 
+export const registerActualizarQuerysData = async (req, res) => {
+    try {
+        const { name, email, password, local, lat, lng, cel } = req.body;
+
+        if (!local) {
+            return res.status(400).json({ message: "El campo 'local' es obligatorio" });
+        }
+
+        let imageUrl = null;
+        if (req.file) {
+            const type = req.file.mimetype;
+            if (!type.startsWith('image/')) {
+                return res.status(400).json({ message: "Solo se permiten imágenes" });
+            }
+            imageUrl = req.file.path;
+            if (!imageUrl) {
+                throw new Error("No se recibió URL de Cloudinary");
+            }
+        }
+
+        let hashPassword;
+        if (password) {
+            const salt = await bcryptjs.genSalt(5);
+            hashPassword = await bcryptjs.hash(password, salt);
+        }
+
+        const field = {
+            name, email, local, lat, lng, cel
+        };
+        if (hashPassword) field.password = hashPassword;
+
+        const validFields = Object.entries(field).filter(([_, value]) => value !== "" && value !== undefined && value !== null);
+
+        const setClause = validFields.map(([key]) => `${key} = ?`).join(', ');
+        const values = validFields.map(([_, value]) => value);
+
+        let finalQuery = '';
+        let finalValues = [];
+
+        if (imageUrl && validFields.length > 0) {
+            finalQuery = `UPDATE restaurant SET ${setClause}, logo = ? WHERE local = ?`;
+            finalValues = [...values, imageUrl, local];
+        } else if (imageUrl && validFields.length === 0) {
+            finalQuery = 'UPDATE restaurant SET logo = ? WHERE local = ?';
+            finalValues = [imageUrl, local];
+        } else if (!imageUrl && validFields.length > 0) {
+            finalQuery = `UPDATE restaurant SET ${setClause} WHERE local = ?`;
+            finalValues = [...values, local];
+        } else {
+            return res.status(400).json({ message: "No se proporcionaron datos válidos para actualizar" });
+        }
+
+        const result = await pool.query(finalQuery, finalValues);
+
+        return res.json({
+            status: "ok",
+            message: "Se actualizo con éxito la información"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: `Error interno del servidor: ${error.message}`
+        });
+    }
+};
 export const loginQuerysData = async (req, res) => {
     console.log("datos del req.body:", req.body);
     const { name, email, password } = req.body;
@@ -251,7 +317,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     // Filtramos campos con valor válido (que no estén vacíos)
     const validFields = Object.entries(field).filter(([key, value]) => value !== "" && value !== undefined && value !== null);
 
-  
+
 
     // Creamos los fragmentos SET dinámicos y los valores
     const setClause = validFields.map(([key]) => `${key} = ?`).join(', ');
@@ -271,7 +337,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
                 throw new Error("No se recibió URL de Cloudinary");
             }
             // insert con imagen
-           const result = await pool.query(
+            const result = await pool.query(
                 `UPDATE restaurant SET ${setClause}, logo = ? WHERE id = ?`,
                 [...values, req.file.path, req.user.id]
             );
@@ -292,7 +358,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
             if (!req.file.path) {
                 throw new Error("No se recibió URL de Cloudinary");
             }
-           const result = await pool.query(
+            const result = await pool.query(
                 'UPDATE restaurant SET logo = ? WHERE id = ? ',
                 [req.file.path, req.user.id]
             );
@@ -310,7 +376,7 @@ export const logoEnvioHorarioQuerysData = async (req, res) => {
     } else if (!req.file && validFields.length > 0) {
         try {
             // insert sin imagen
-           const result = await pool.query(
+            const result = await pool.query(
                 `UPDATE restaurant SET ${setClause} WHERE id = ?`,
                 [...values, req.user.id]
             );

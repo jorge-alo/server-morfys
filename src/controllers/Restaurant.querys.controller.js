@@ -130,14 +130,15 @@ export const registerQuerysData = async (req, res) => {
 export const registerActualizarQuerysData = async (req, res) => {
     try {
         const { name, email, password, local, lat, lng, cel, domicilio } = req.body;
-
+        console.log(req.body);
+        console.log("Este es el valor de domicilio", domicilio);
         if (!local) {
             return res.status(400).json({ message: "El campo 'local' es obligatorio" });
         }
 
         const [rows] = await pool.query("SELECT id FROM restaurant WHERE local = ?", [local]);
-        if(rows.length === 0){
-            return res.status(400).json({status: "error", message: "No se encontro el nombre del local"})
+        if (rows.length === 0) {
+            return res.status(400).json({ status: "error", message: "No se encontro el nombre del local" })
         }
         let imageUrl = null;
         if (req.file) {

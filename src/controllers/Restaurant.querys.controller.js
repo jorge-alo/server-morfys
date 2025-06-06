@@ -87,7 +87,7 @@ export const registerQuerysData = async (req, res) => {
     console.log(req.file);
     const type = req.file.mimetype;
     console.log(req.body);
-    const { name, email, password, local, lat, lng, cel, direccion } = req.body;
+    const { name, email, password, local, lat, lng, cel, domicilio } = req.body;
 
     if (!name || !email || !password || !local || !req.file) {
         return res.status(400).json({
@@ -110,7 +110,7 @@ export const registerQuerysData = async (req, res) => {
         if (!req.file.path) {
             throw new Error("No se recibió URL de Cloudinary");
         }
-        const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, direccion, logo) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, direccion, imageUrl])
+        const [row] = await pool.query("INSERT INTO restaurant (user_name, email, password, local, latitud, longitud, cel, domicilio, logo) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", [name, email, hashPassword, local, lat, lng, cel, domicilio, imageUrl])
         return res.json({
             status: "ok",
             message: "usuario registrado con exito"
@@ -129,7 +129,7 @@ export const registerQuerysData = async (req, res) => {
 
 export const registerActualizarQuerysData = async (req, res) => {
     try {
-        const { name, email, password, local, lat, lng, cel, direccion } = req.body;
+        const { name, email, password, local, lat, lng, cel, domicilio } = req.body;
 
         if (!local) {
             return res.status(400).json({ message: "El campo 'local' es obligatorio" });
@@ -159,7 +159,7 @@ export const registerActualizarQuerysData = async (req, res) => {
         const latitud = lat;
         const longitud = lng
         const field = {
-            name, email, latitud, longitud, cel, direccion
+            name, email, latitud, longitud, cel, domicilio
         };
         if (hashPassword) field.password = hashPassword;
 

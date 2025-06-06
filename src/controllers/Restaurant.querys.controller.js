@@ -135,6 +135,10 @@ export const registerActualizarQuerysData = async (req, res) => {
             return res.status(400).json({ message: "El campo 'local' es obligatorio" });
         }
 
+        const [rows] = await pool.query("SELECT id FROM restaurant WHERE local = ?", [local]);
+        if(rows.length === 0){
+            return res.status(400).json({status: "error", message: "No se encontro el nombre del local"})
+        }
         let imageUrl = null;
         if (req.file) {
             const type = req.file.mimetype;

@@ -278,7 +278,7 @@ export const loadQuerysLocales = async (req, res) => {
     } else {
         try {
 
-            const [rows] = await pool.query("SELECT local, logo, latitud, longitud, img_vaner, envio, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada, horarioManianaSalida, diaTardeEntrada, diaTardeSalida, horarioTardeEntrada, horarioTardeSalida, diaDifManianaEntrada, horarioDifManianaEntrada, horarioDifManianaSalida, diaDifTardeEntrada, horarioDifTardeEntrada, horarioDifTardeSalida FROM restaurant");
+            const [rows] = await pool.query("SELECT local, domicilio, logo, latitud, longitud, img_vaner, envio, envioMinimo, diaManianaEntrada, diaManianaSalida, horarioManianaEntrada, horarioManianaSalida, diaTardeEntrada, diaTardeSalida, horarioTardeEntrada, horarioTardeSalida, diaDifManianaEntrada, horarioDifManianaEntrada, horarioDifManianaSalida, diaDifTardeEntrada, horarioDifTardeEntrada, horarioDifTardeSalida FROM restaurant");
             console.log(rows);
             return res.json({
                 status: "ok",

@@ -156,9 +156,10 @@ export const registerActualizarQuerysData = async (req, res) => {
             const salt = await bcryptjs.genSalt(5);
             hashPassword = await bcryptjs.hash(password, salt);
         }
-
+        const latitud = lat;
+        const longitud = lng
         const field = {
-            name, email, lat, lng, cel
+            name, email, latitud, longitud, cel
         };
         if (hashPassword) field.password = hashPassword;
 

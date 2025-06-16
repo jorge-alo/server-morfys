@@ -122,6 +122,7 @@ export const cargarQuerysData = async (req, res) => {
             let variantes;
             try {
                 variantes = JSON.parse(req.body.variantes);
+                console.log(variantes);
             } catch (error) {
                 return res.status(400).json({ message: "Formato inválido de variantes" });
             }

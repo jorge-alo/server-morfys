@@ -452,8 +452,27 @@ export const getquerysImages = async (req, res) => {
             });
         }
 
-        const [comidas] = await pool.query("SELECT id, user_id, name, description, image, price, categoria, guarnicion FROM comidas WHERE user_id = ?", [idVaner[0].id])
+        const [comidas] = await pool.query("SELECT id, user_id, name, description, image, price, categoria FROM comidas WHERE user_id = ?", [idVaner[0].id])
+        // Agregar variantes y opciones a cada comida
+        for (const comida of comidas) {
+            const [variantes] = await pool.query(`
+                SELECT id, comida_id, tipo, nombre
+                FROM variantes
+                WHERE comida_id = ?
+            `, [comida.id]);
 
+            for (const variante of variantes) {
+                const [opciones] = await pool.query(`
+                    SELECT id, variante_id, nombre, precio_adicional
+                    FROM opciones_variante
+                    WHERE variante_id = ?
+                `, [variante.id]);
+
+                variante.opciones = opciones;
+            }
+
+            comida.variantes = variantes;
+        }
         res.json({
             status: "ok",
             message: "Se a ha seleccionado con exito",

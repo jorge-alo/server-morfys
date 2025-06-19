@@ -62,7 +62,7 @@ export const uploadQuerysData = async (req, res) => {
                     for (const opcion of variante.opciones) {
                         await pool.query(
                             "INSERT INTO opciones_variante (variante_id, nombre, precio_adicional) VALUES (?, ?, ?)",
-                            [varianteId, opcion.nombre, opcion.precioExtra || 0]
+                            [varianteId, opcion.nombre, opcion.precio_adicional || 0]
                         );
                     }
                 }
@@ -136,10 +136,10 @@ export const cargarQuerysData = async (req, res) => {
                 const varianteId = varianteResult.insertId;
 
                 for (const opcion of variante.opciones) {
-                    const { nombre, precioExtra } = opcion;
+                    const { nombre, precio_adicional } = opcion;
                     await pool.query(
                         'INSERT INTO opciones_variante (variante_id, nombre, precio_adicional) VALUES (?, ?, ?)',
-                        [varianteId, nombre, precioExtra || 0]
+                        [varianteId, nombre, precio_adicional || 0]
                     );
                 }
             }

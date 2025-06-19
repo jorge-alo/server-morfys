@@ -53,8 +53,8 @@ export const uploadQuerysData = async (req, res) => {
             // Luego insertar nuevas variantes y opciones
             for (const variante of variantesArray) {
                 const [varResult] = await pool.query(
-                    "INSERT INTO variantes (comida_id, nombre, tipo) VALUES (?, ?, ?)",
-                    [comida_id, variante.nombre, variante.tipo || ""]
+                    "INSERT INTO variantes (comida_id, nombre, tipo, limite) VALUES (?, ?, ?, ?)",
+                    [comida_id, variante.nombre, variante.tipo || "", variante.limite || null]
                 );
                 const varianteId = varResult.insertId;
 
@@ -82,21 +82,17 @@ export const uploadQuerysData = async (req, res) => {
 }
 
 export const cargarQuerysData = async (req, res) => {
-    console.log("Archivo recibido:", req.file)
+    console.log("Archivo recibido:", req.file);
     console.log(req.body);
     console.log("datos del usuario:", req.user);
     const { name, description, price, categoria } = req.body;
-
 
     if (!name || !description || !price || !categoria) {
         return res.status(400).json({
             status: "error",
             message: "faltan datos"
-        })
+        });
     }
-
-    let result;
-
 
     try {
         let imageName = null;
@@ -107,7 +103,8 @@ export const cargarQuerysData = async (req, res) => {
             }
             imageName = req.file.path;
         }
-          // Insertar comida (con o sin imagen)
+
+        // Insertar comida
         const [result] = await pool.query(
             `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria)
              VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?)`,
@@ -117,28 +114,32 @@ export const cargarQuerysData = async (req, res) => {
         );
 
         const comidaId = result.insertId;
-        // Insertar variantes si existen
+
+        // Insertar variantes
         if (req.body.variantes) {
             let variantes;
             try {
                 variantes = JSON.parse(req.body.variantes);
-                console.log(variantes);
             } catch (error) {
                 return res.status(400).json({ message: "Formato inválido de variantes" });
             }
 
             for (const variante of variantes) {
+                const { nombre, tipo, limite } = variante;
+
+                // 👇 Insertamos también el campo limite
                 const [varianteResult] = await pool.query(
-                    'INSERT INTO variantes (comida_id, nombre, tipo) VALUES (?, ?, ?)',
-                    [comidaId, variante.nombre, variante.tipo]  // usar tipo como nombre también
+                    'INSERT INTO variantes (comida_id, nombre, tipo, limite) VALUES (?, ?, ?, ?)',
+                    [comidaId, nombre, tipo || "", limite || null]
                 );
 
                 const varianteId = varianteResult.insertId;
 
                 for (const opcion of variante.opciones) {
+                    const { nombre, precioExtra } = opcion;
                     await pool.query(
                         'INSERT INTO opciones_variante (variante_id, nombre, precio_adicional) VALUES (?, ?, ?)',
-                        [varianteId, opcion.nombre, opcion.precioExtra]
+                        [varianteId, nombre, precioExtra || 0]
                     );
                 }
             }
@@ -148,18 +149,14 @@ export const cargarQuerysData = async (req, res) => {
             status: "ok",
             message: "Se guardó con éxito la información"
         });
+
     } catch (error) {
         return res.status(500).json({
             status: "error",
             message: `error interno del servidor: ${error}`
-        })
+        });
     }
-
-
-
-
-
-}
+};
 
 export const destroyQuerysData = async (req, res) => {
     const { id } = req.params;

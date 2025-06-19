@@ -456,7 +456,7 @@ export const getquerysImages = async (req, res) => {
         // Agregar variantes y opciones a cada comida
         for (const comida of comidas) {
             const [variantes] = await pool.query(`
-                SELECT id, comida_id, tipo, nombre
+                SELECT id, comida_id, tipo, nombre, limite
                 FROM variantes
                 WHERE comida_id = ?
             `, [comida.id]);

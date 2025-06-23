@@ -85,7 +85,7 @@ export const cargarQuerysData = async (req, res) => {
     console.log("Archivo recibido:", req.file);
     console.log(req.body);
     console.log("datos del usuario:", req.user);
-    const { name, description, price, categoria } = req.body;
+    const { name, description, price, categoria, tipoControl } = req.body;
 
     if (!name || !description || !price || !categoria) {
         return res.status(400).json({
@@ -106,11 +106,11 @@ export const cargarQuerysData = async (req, res) => {
 
         // Insertar comida
         const [result] = await pool.query(
-            `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria)
+            `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria, tipo_control)
              VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?)`,
             imageName
-                ? [req.user.id, name, description, imageName, price, categoria]
-                : [req.user.id, name, description, price, categoria]
+                ? [req.user.id, name, description, imageName, price, categoria, tipoControl]
+                : [req.user.id, name, description, price, categoria, tipoControl]
         );
 
         const comidaId = result.insertId;

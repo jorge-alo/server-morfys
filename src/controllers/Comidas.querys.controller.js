@@ -87,7 +87,7 @@ export const cargarQuerysData = async (req, res) => {
     console.log("datos del usuario:", req.user);
     const { name, description, price, categoria, tipoControl, tamanio } = req.body;
 
-    if (!name || !description || !price || !categoria) {
+    if (!name || !categoria) {
         return res.status(400).json({
             status: "error",
             message: "faltan datos"

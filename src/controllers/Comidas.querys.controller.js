@@ -107,7 +107,7 @@ export const cargarQuerysData = async (req, res) => {
         // Insertar comida
         const [result] = await pool.query(
             `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria, tipo_control, tamanio)
-             VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?, ?)`,
+             VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?, ?, ?)`,
             imageName
                 ? [req.user.id, name, description, imageName, price, categoria, tipoControl, tamanio]
                 : [req.user.id, name, description, price, categoria, tipoControl, tamanio]

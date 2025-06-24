@@ -452,7 +452,7 @@ export const getquerysImages = async (req, res) => {
             });
         }
 
-        const [comidas] = await pool.query("SELECT id, user_id, name, description, image, price, categoria, tipo_control FROM comidas WHERE user_id = ?", [idVaner[0].id])
+        const [comidas] = await pool.query("SELECT id, user_id, name, description, image, price, categoria, tipo_control, tamanio FROM comidas WHERE user_id = ?", [idVaner[0].id])
         // Agregar variantes y opciones a cada comida
         for (const comida of comidas) {
             const [variantes] = await pool.query(`

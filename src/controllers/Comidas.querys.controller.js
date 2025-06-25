@@ -24,13 +24,13 @@ export const uploadQuerysData = async (req, res) => {
 
             // UPDATE con imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tipo_control, tamanio = ? WHERE id = ? AND user_id = ?`,
+                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tipo_control = ?, tamanio = ? WHERE id = ? AND user_id = ?`,
                 [name, description, req.file.path, price, categoria,tipoControl, tamanioValue, comida_id, user_id]
             );
         } else {
             // UPDATE sin imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tipo_control, tamanio = ? WHERE id = ? AND user_id = ?`,
+                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tipo_control= ?, tamanio = ? WHERE id = ? AND user_id = ?`,
                 [name, description, price, categoria, tipoControl, tamanioValue, comida_id, user_id]
             );
         }

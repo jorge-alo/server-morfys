@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 export const uploadQuerysData = async (req, res) => {
     console.log(req.file)
     console.log(req.body);
-    const { name, description, price, categoria, user_id, comida_id, variantes, tamanio } = req.body;
+    const { name, description, price, categoria, user_id, comida_id, variantes, tipoControl, tamanio } = req.body;
     const tamanioValue = (tamanio === 'true' || tamanio === true) ? 1 : 0;
     try {
         let result;
@@ -24,14 +24,14 @@ export const uploadQuerysData = async (req, res) => {
 
             // UPDATE con imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tamanio = ? WHERE id = ? AND user_id = ?`,
-                [name, description, req.file.path, price, categoria, tamanioValue, comida_id, user_id]
+                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tipo_control, tamanio = ? WHERE id = ? AND user_id = ?`,
+                [name, description, req.file.path, price, categoria,tipoControl, tamanioValue, comida_id, user_id]
             );
         } else {
             // UPDATE sin imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tamanio = ? WHERE id = ? AND user_id = ?`,
-                [name, description, price, categoria, tamanioValue, comida_id, user_id]
+                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tipo_control, tamanio = ? WHERE id = ? AND user_id = ?`,
+                [name, description, price, categoria, tipoControl, tamanioValue, comida_id, user_id]
             );
         }
         // ✅ Parsear variantes si vienen del formulario

@@ -8,8 +8,9 @@ import jwt from 'jsonwebtoken';
 export const uploadQuerysData = async (req, res) => {
     console.log(req.file)
     console.log(req.body);
-    const { name, description, price, categoria, user_id, comida_id, variantes, tipoControl, tamanio } = req.body;
+    const { name, description, price, categoria, user_id, comida_id, variantes, tipoControl, tamanio, controlunidad } = req.body;
     const tamanioValue = (tamanio === 'true' || tamanio === true) ? 1 : 0;
+    const controlUnidadValue = (controlunidad === 'true' || controlunidad === true) ? 1 : 0;
     try {
         let result;
         if (req.file) {
@@ -24,14 +25,14 @@ export const uploadQuerysData = async (req, res) => {
 
             // UPDATE con imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tipo_control = ?, tamanio = ? WHERE id = ? AND user_id = ?`,
-                [name, description, req.file.path, price, categoria,tipoControl, tamanioValue, comida_id, user_id]
+                `UPDATE comidas SET name = ?, description = ?, image = ?, price = ?, categoria = ?, tipo_control = ?, tamanio = ?, controlUnidad = ? WHERE id = ? AND user_id = ?`,
+                [name, description, req.file.path, price, categoria,tipoControl, tamanioValue, controlUnidadValue, comida_id, user_id]
             );
         } else {
             // UPDATE sin imagen
             result = await pool.query(
-                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tipo_control= ?, tamanio = ? WHERE id = ? AND user_id = ?`,
-                [name, description, price, categoria, tipoControl, tamanioValue, comida_id, user_id]
+                `UPDATE comidas SET name = ?, description = ?, price = ?, categoria = ?, tipo_control= ?, tamanio = ?, controlUnidad = ? WHERE id = ? AND user_id = ?`,
+                [name, description, price, categoria, tipoControl, tamanioValue, controlUnidadValue, comida_id, user_id]
             );
         }
         // ✅ Parsear variantes si vienen del formulario
@@ -85,8 +86,9 @@ export const cargarQuerysData = async (req, res) => {
     console.log("Archivo recibido:", req.file);
     console.log(req.body);
     console.log("datos del usuario:", req.user);
-    const { name, description, price, categoria, tipoControl, tamanio } = req.body;
+    const { name, description, price, categoria, tipoControl, tamanio, controlunidad } = req.body;
     const tamanioValue = (tamanio === 'true' || tamanio === true) ? 1 : 0;
+    const controlUnidadValue = (controlunidad === 'true' || controlunidad === true) ? 1 : 0;
     if (!name || !categoria) {
         return res.status(400).json({
             status: "error",
@@ -106,11 +108,11 @@ export const cargarQuerysData = async (req, res) => {
 
         // Insertar comida
         const [result] = await pool.query(
-            `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria, tipo_control, tamanio)
-             VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?, ?, ?)`,
+            `INSERT INTO comidas (user_id, name, description, ${imageName ? 'image,' : ''} price, categoria, tipo_control, tamanio, controlUnidad)
+             VALUES (?, ?, ?, ${imageName ? '?,' : ''} ?, ?, ?, ?, ?)`,
             imageName
-                ? [req.user.id, name, description, imageName, price, categoria, tipoControl, tamanioValue]
-                : [req.user.id, name, description, price, categoria, tipoControl, tamanioValue]
+                ? [req.user.id, name, description, imageName, price, categoria, tipoControl, tamanioValue, controlUnidadValue]
+                : [req.user.id, name, description, price, categoria, tipoControl, tamanioValue, controlUnidadValue]
         );
 
         const comidaId = result.insertId;
